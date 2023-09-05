@@ -28,13 +28,7 @@
                     <!-- Valores inseridos serão exibidos aqui -->
                 </ul>
             </div>
-            <div class="col-md-3">
-                <h2>Notas Necessárias:</h2>
-                <ul id="notas-necessarias" class="list-group">
-                    <!-- Quantidade de notas será exibida aqui -->
-                </ul>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <h2>Total de Notas de Cada Valor:</h2>
                 <ul id="total-notas" class="list-group">
                     <!-- Total de notas será exibido aqui -->
@@ -64,57 +58,25 @@
             li.className = 'list-group-item';
             valoresInseridosElement.appendChild(li);
 
-            // Calcular e exibir a quantidade de notas
-            const notasNecessariasElement = document.getElementById('notas-necessarias');
+            // Calcular o total de notas de cada valor e distribuir uniformemente
             const totalNotasElement = document.getElementById('total-notas');
-            const resultado = [];
-
-            for (let j = 0; j < valoresInseridos.length; j++) {
-                const valorInserido = valoresInseridos[j];
-                const resultadoValor = [];
-
-                let valorRestante = valorInserido;
-
-                for (let i = 0; i < notasMoedas.length; i++) {
-                    const notaMoeda = notasMoedas[i];
-                    let quantidade = 0;
-
-                    while (valorRestante >= notaMoeda) {
-                        valorRestante -= notaMoeda;
-                        quantidade++;
-                        if (quantidade % 2 === 0) {
-                            break; // Alterna para a próxima nota após usar duas notas iguais
-                        }
-                    }
-
-                    if (quantidade > 0) {
-                        resultadoValor.push(`${quantidade} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`);
-                    }
-                }
-
-                resultado.push(resultadoValor.join(', '));
-            }
-
-            notasNecessariasElement.innerHTML = '';
             totalNotasElement.innerHTML = '';
-            
-            resultado.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item;
-                li.className = 'list-group-item';
-                notasNecessariasElement.appendChild(li);
+
+            const totalNotas = calcularTotalNotas();
+            const quantidadeTotalNotas = totalNotas.reduce((acc, val) => acc + val, 0);
+
+            const distribuicaoUniforme = totalNotas.map(total => {
+                return Math.floor((total / quantidadeTotalNotas) * 100);
             });
 
-            // Calcular o total de notas de cada valor
-            const totalNotas = calcularTotalNotas();
-            totalNotasElement.innerHTML = '';
-            totalNotas.forEach((total, index) => {
-                const notaMoeda = notasMoedas[index];
+            for (let i = 0; i < notasMoedas.length; i++) {
+                const notaMoeda = notasMoedas[i];
+                const percentual = distribuicaoUniforme[i];
                 const li = document.createElement('li');
-                li.textContent = `${total} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`;
+                li.textContent = `${percentual}% de ${notaMoeda >= 1 ? 'nota' : 'moeda'} de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`;
                 li.className = 'list-group-item';
                 totalNotasElement.appendChild(li);
-            });
+            }
 
             // Limpar o campo de valor
             document.getElementById('valor').value = '';
