@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Notas e Moedas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contador de Notas e Moedas</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="valor">Digite um valor:</label>
+                    <input type="number" class="form-control" id="valor" placeholder="Insira um valor">
+                </div>
+                <button class="btn btn-primary" id="calcular">Calcular</button>
+            </div>
+            <div class="col-md-6">
+                <h2>Resultado:</h2>
+                <ul id="resultado" class="list-group">
+                    <!-- O resultado será exibido aqui -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calcular').addEventListener('click', function() {
+            const valor = parseFloat(document.getElementById('valor').value);
+
+            if (isNaN(valor)) {
+                alert('Por favor, insira um valor válido.');
+                return;
+            }
+
+            const notasMoedas = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.25, 0.1, 0.05, 0.01];
+            const resultado = [];
+
+            let valorRestante = valor;
+
+            for (let i = 0; i < notasMoedas.length; i++) {
+                const notaMoeda = notasMoedas[i];
+                const quantidade = Math.floor(valorRestante / notaMoeda);
+                if (quantidade > 0) {
+                    resultado.push(`${quantidade} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`);
+                }
+                valorRestante %= notaMoeda;
+            }
+
+            const resultadoElement = document.getElementById('resultado');
+            resultadoElement.innerHTML = '';
+            resultado.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.className = 'list-group-item';
+                resultadoElement.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
