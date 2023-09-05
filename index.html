@@ -77,20 +77,19 @@
 
                 for (let i = 0; i < notasMoedas.length; i++) {
                     const notaMoeda = notasMoedas[i];
-                    let quantidade = Math.floor(valorRestante / notaMoeda);
+                    let quantidade = 0;
+
+                    while (valorRestante >= notaMoeda) {
+                        valorRestante -= notaMoeda;
+                        quantidade++;
+                        if (quantidade % 2 === 0) {
+                            break; // Alterna para a próxima nota após usar duas notas iguais
+                        }
+                    }
 
                     if (quantidade > 0) {
-                        if (quantidade >= 2) {
-                            // Verifica se pode dividir a nota em duas de menor valor
-                            const notaMenorValor = notaMoeda / 2;
-                            const quantidadeDeMenorValor = Math.floor(quantidade / 2);
-                            quantidade -= quantidadeDeMenorValor * 2;
-                            resultadoValor.push(`${quantidadeDeMenorValor} notas de ${notaMenorValor.toFixed(2)} ${notaMenorValor >= 1 ? 'real' : 'centavo'}`);
-                        }
-
                         resultadoValor.push(`${quantidade} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`);
                     }
-                    valorRestante -= quantidade * notaMoeda;
                 }
 
                 resultado.push(resultadoValor.join(', '));
