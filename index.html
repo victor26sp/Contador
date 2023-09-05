@@ -15,24 +15,39 @@
     <div class="container">
         <h1>Contador de Notas e Moedas</h1>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div class="form-group">
                     <label for="valor">Digite um valor:</label>
                     <input type="number" class="form-control" id="valor" placeholder="Insira um valor">
                 </div>
-                <button class="btn btn-primary" id="calcular">Calcular</button>
+                <button class="btn btn-primary" id="adicionar">Adicionar Valor</button>
             </div>
-            <div class="col-md-6">
-                <h2>Resultado:</h2>
-                <ul id="resultado" class="list-group">
-                    <!-- O resultado será exibido aqui -->
+            <div class="col-md-3">
+                <h2>Valores Inseridos:</h2>
+                <ul id="valores-inseridos" class="list-group">
+                    <!-- Valores inseridos serão exibidos aqui -->
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h2>Notas Necessárias:</h2>
+                <ul id="notas-necessarias" class="list-group">
+                    <!-- Quantidade de notas será exibida aqui -->
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h2>Total de Notas de Cada Valor:</h2>
+                <ul id="total-notas" class="list-group">
+                    <!-- Total de notas será exibido aqui -->
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('calcular').addEventListener('click', function() {
+        const valoresInseridos = [];
+        const notasMoedas = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.25, 0.1, 0.05, 0.01];
+
+        document.getElementById('adicionar').addEventListener('click', function() {
             const valor = parseFloat(document.getElementById('valor').value);
 
             if (isNaN(valor)) {
@@ -40,29 +55,87 @@
                 return;
             }
 
-            const notasMoedas = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.25, 0.1, 0.05, 0.01];
+            valoresInseridos.push(valor);
+
+            // Atualizar a lista de valores inseridos
+            const valoresInseridosElement = document.getElementById('valores-inseridos');
+            const li = document.createElement('li');
+            li.textContent = valor.toFixed(2);
+            li.className = 'list-group-item';
+            valoresInseridosElement.appendChild(li);
+
+            // Calcular e exibir a quantidade de notas
+            const notasNecessariasElement = document.getElementById('notas-necessarias');
+            const totalNotasElement = document.getElementById('total-notas');
             const resultado = [];
 
-            let valorRestante = valor;
+            for (let j = 0; j < valoresInseridos.length; j++) {
+                const valorInserido = valoresInseridos[j];
+                const resultadoValor = [];
 
-            for (let i = 0; i < notasMoedas.length; i++) {
-                const notaMoeda = notasMoedas[i];
-                const quantidade = Math.floor(valorRestante / notaMoeda);
-                if (quantidade > 0) {
-                    resultado.push(`${quantidade} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`);
+                let valorRestante = valorInserido;
+
+                for (let i = 0; i < notasMoedas.length; i++) {
+                    const notaMoeda = notasMoedas[i];
+                    let quantidade = Math.floor(valorRestante / notaMoeda);
+
+                    if (quantidade > 0) {
+                        if (quantidade >= 2) {
+                            // Verifica se pode dividir a nota em duas de menor valor
+                            const notaMenorValor = notaMoeda / 2;
+                            const quantidadeDeMenorValor = Math.floor(quantidade / 2);
+                            quantidade -= quantidadeDeMenorValor * 2;
+                            resultadoValor.push(`${quantidadeDeMenorValor} notas de ${notaMenorValor.toFixed(2)} ${notaMenorValor >= 1 ? 'real' : 'centavo'}`);
+                        }
+
+                        resultadoValor.push(`${quantidade} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`);
+                    }
+                    valorRestante -= quantidade * notaMoeda;
                 }
-                valorRestante %= notaMoeda;
+
+                resultado.push(resultadoValor.join(', '));
             }
 
-            const resultadoElement = document.getElementById('resultado');
-            resultadoElement.innerHTML = '';
+            notasNecessariasElement.innerHTML = '';
+            totalNotasElement.innerHTML = '';
+            
             resultado.forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = item;
                 li.className = 'list-group-item';
-                resultadoElement.appendChild(li);
+                notasNecessariasElement.appendChild(li);
             });
+
+            // Calcular o total de notas de cada valor
+            const totalNotas = calcularTotalNotas();
+            totalNotasElement.innerHTML = '';
+            totalNotas.forEach((total, index) => {
+                const notaMoeda = notasMoedas[index];
+                const li = document.createElement('li');
+                li.textContent = `${total} ${notaMoeda >= 1 ? 'nota' : 'moeda'}(s) de ${notaMoeda.toFixed(2)} ${notaMoeda >= 1 ? 'real' : 'centavo'}`;
+                li.className = 'list-group-item';
+                totalNotasElement.appendChild(li);
+            });
+
+            // Limpar o campo de valor
+            document.getElementById('valor').value = '';
         });
+
+        function calcularTotalNotas() {
+            const totalNotas = new Array(notasMoedas.length).fill(0);
+
+            valoresInseridos.forEach(valor => {
+                let valorRestante = valor;
+                for (let i = 0; i < notasMoedas.length; i++) {
+                    const notaMoeda = notasMoedas[i];
+                    const quantidade = Math.floor(valorRestante / notaMoeda);
+                    valorRestante -= quantidade * notaMoeda;
+                    totalNotas[i] += quantidade;
+                }
+            });
+
+            return totalNotas;
+        }
     </script>
 </body>
 </html>
